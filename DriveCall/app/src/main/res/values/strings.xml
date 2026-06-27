@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DriveCall</string>
+    <string name="mic_description">Microphone</string>
+    <string name="status_idle">Tap the microphone to start</string>
+    <string name="status_listening">Listening...</string>
+    <string name="status_recognizing">Recognizing...</string>
+    <string name="status_searching">Searching Contact...</string>
+    <string name="status_calling">Calling %s...</string>
+    <string name="status_error">Unable to recognize speech</string>
+    <string name="status_no_contact">No contact found</string>
+    <string name="hint_text">Say "Call Amma" or "Dial Thaththa"</string>
+</resources>

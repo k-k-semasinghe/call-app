@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="listening_color">#FF4CAF50</color>
+    <color name="searching_color">#FFFF9800</color>
+    <color name="calling_color">#FF2196F3</color>
+</resources>

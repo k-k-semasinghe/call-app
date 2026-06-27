@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.DriveCall" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorPrimaryContainer">@color/primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/on_primary_container</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnSecondary">@color/on_secondary</item>
+        <item name="colorSecondaryContainer">@color/secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/on_secondary_container</item>
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/on_error</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/on_surface_variant</item>
+        <item name="android:statusBarColor">@color/background</item>
+        <item name="android:navigationBarColor">@color/background</item>
+    </style>
+
+    <color name="primary">#FF8AB4F8</color>
+    <color name="on_primary">#FF062E6F</color>
+    <color name="primary_container">#FF0842A0</color>
+    <color name="on_primary_container">#FFD3E3FD</color>
+    <color name="secondary">#FFBDC1C6</color>
+    <color name="on_secondary">#FF303134</color>
+    <color name="secondary_container">#FF3C4043</color>
+    <color name="on_secondary_container">#FFE8EAED</color>
+    <color name="error">#FFF28B82</color>
+    <color name="on_error">#FF601410</color>
+    <color name="background">#FF121212</color>
+    <color name="on_background">#FFE8EAED</color>
+    <color name="surface">#FF1E1E1E</color>
+    <color name="on_surface">#FFE8EAED</color>
+    <color name="on_surface_variant">#FF9AA0A6</color>
+    <color name="outline">#FF5F6368</color>
+</resources>
