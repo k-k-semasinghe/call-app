@@ -24,6 +24,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val speechManager = SpeechManager(application)
     val ttsManager = TextToSpeechManager(application)
     val contactRepository = ContactRepository(application)
+    val speedDialManager = com.drivecall.utilities.SpeedDialManager(application)
 
     private val _appState = MutableStateFlow(AppState.IDLE)
     val appState: StateFlow<AppState> = _appState.asStateFlow()
@@ -42,6 +43,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private var isProcessing = false
 
+    private val _finishApp = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val finishApp: SharedFlow<Unit> = _finishApp.asSharedFlow()
+
     init {
         observeSpeechState()
     }
@@ -53,7 +57,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     SpeechState.IDLE -> {
                         if (_appState.value != AppState.CONFIRMING &&
                             _appState.value != AppState.CALLING &&
-                            _appState.value != AppState.MULTI_SELECT) {
+                            _appState.value != AppState.MULTI_SELECT &&
+                            _appState.value != AppState.SPEAKING) {
                             _appState.value = AppState.IDLE
                         }
                     }
@@ -144,6 +149,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         Logger.speech("Processing recognized text: '$text', state=${_appState.value}")
 
+        val cancelWords = setOf("cancel", "stop", "exit", "quit", "close", "shutdown", "never mind", "goodbye", "end")
+        val normalized = text.trim().lowercase()
+        if (cancelWords.any { normalized == it || normalized.startsWith("$it ") || normalized.endsWith(" $it") || normalized.contains(" $it ") }) {
+            isProcessing = false
+            _appState.value = AppState.SPEAKING
+            _statusText.value = "Goodbye"
+            speechManager.cancel()
+            ttsManager.speak("Goodbye") {
+                _finishApp.tryEmit(Unit)
+            }
+            return
+        }
+
         if (_appState.value == AppState.MULTI_SELECT) {
             handleMultiSelectSpeech(text)
             return
@@ -154,14 +172,31 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
+
         val command = CommandParser.parse(text)
 
         when (command.intent) {
             CommandIntent.CALL -> {
                 handleCallCommand(command)
             }
+            CommandIntent.TIME -> {
+                handleTimeCommand()
+            }
+            CommandIntent.SPEED_DIAL -> {
+                handleSpeedDialCommand(command)
+            }
             CommandIntent.UNKNOWN -> {
-                if (contactRepository.getContacts().isNotEmpty()) {
+                val numberWord = text.trim().lowercase()
+                val slot = com.drivecall.utilities.CommandParser.numberWordMap[numberWord]
+                if (slot != null) {
+                    handleSpeedDialCommand(
+                        CommandResult(
+                            intent = CommandIntent.SPEED_DIAL,
+                            slotNumber = slot,
+                            rawText = text
+                        )
+                    )
+                } else if (contactRepository.getContacts().isNotEmpty()) {
                     handleCallCommand(
                         CommandResult(
                             intent = CommandIntent.CALL,
@@ -286,6 +321,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _appState.value = AppState.CALLING
         _statusText.value = "Calling ${contact.name}..."
         Logger.service("Placing call to ${contact.name} at ${contact.phoneNumber}")
+        _finishApp.tryEmit(Unit)
 
         ttsManager.speak("Calling ${contact.name}") {
             val context = getApplication<Application>()
@@ -299,8 +335,80 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 Logger.error("MainViewModel", "Failed to place call", e)
                 _statusText.value = "Failed to place call"
                 _appState.value = AppState.ERROR
+                _finishApp.tryEmit(Unit)
             }
             isProcessing = false
+        }
+    }
+
+    private fun handleSpeedDialCommand(command: CommandResult) {
+        val slot = command.slotNumber ?: run {
+            _statusText.value = "No slot specified"
+            _appState.value = AppState.IDLE
+            ttsManager.speak("Please say the slot number") {
+                speechManager.startListening()
+            }
+            return
+        }
+        val entry = speedDialManager.getEntry(slot)
+        if (entry == null) {
+            _statusText.value = "Speed dial $slot is empty"
+            _appState.value = AppState.IDLE
+            ttsManager.speak("Speed dial $slot is not set") {
+                isProcessing = false
+                speechManager.startListening()
+            }
+            return
+        }
+        val contact = com.drivecall.models.Contact(
+            id = -1L,
+            name = entry.name,
+            normalizedName = entry.name.lowercase(),
+            phoneNumber = entry.phoneNumber
+        )
+        placeCall(contact)
+    }
+
+    private fun handleTimeCommand() {
+        val now = java.util.Calendar.getInstance()
+        val hour = now.get(java.util.Calendar.HOUR_OF_DAY)
+        val minute = now.get(java.util.Calendar.MINUTE)
+        val amPm = if (hour < 12) "AM" else "PM"
+        val hour12 = when {
+            hour == 0 -> 12
+            hour > 12 -> hour - 12
+            else -> hour
+        }
+        val minuteStr = if (minute < 10) "0$minute" else "$minute"
+        val timeText = "It's $hour12:$minuteStr $amPm"
+        _statusText.value = timeText
+        _appState.value = AppState.SPEAKING
+        ttsManager.speak(timeText) {
+            isProcessing = false
+            _appState.value = AppState.SPEAKING
+            _statusText.value = "Listening for contact name"
+            ttsManager.speak("Listening for contact name") {
+                isProcessing = false
+                speechManager.startListening()
+            }
+        }
+    }
+
+    private fun afterTimeConfirmed() {
+        isProcessing = false
+        _appState.value = AppState.SPEAKING
+        _statusText.value = "Listening for contact name"
+        ttsManager.speak("Listening for contact name") {
+            isProcessing = false
+            speechManager.startListening()
+        }
+    }
+
+    private fun afterTimeDeclined() {
+        _appState.value = AppState.SPEAKING
+        _statusText.value = "Goodbye"
+        ttsManager.speak("Goodbye") {
+            _finishApp.tryEmit(Unit)
         }
     }
 
@@ -370,6 +478,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 speechManager.startListening()
             }
         }
+    }
+
+    fun prepareForVoiceAssist() {
+        _errorText.value = null
+        _confirmationContact.value = null
+        _candidates.value = emptyList()
+        isProcessing = false
+        speechManager.cancel()
+        contactRepository.loadContacts()
+    }
+
+    fun setAppState(state: AppState, text: String) {
+        _appState.value = state
+        _statusText.value = text
+    }
+
+    fun startListeningAfterTts() {
+        if (!PermissionManager.hasAllPermissions(getApplication())) return
+        if (_appState.value == AppState.CONFIRMING) return
+        isProcessing = false
+        _errorText.value = null
+        speechManager.startListening()
     }
 
     fun resetState() {

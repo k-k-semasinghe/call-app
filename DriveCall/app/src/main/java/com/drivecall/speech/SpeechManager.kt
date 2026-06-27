@@ -193,9 +193,20 @@ class SpeechManager(private val context: Context) {
             startSilenceTimer()
         } catch (e: Exception) {
             Logger.error("SpeechManager", "Failed to start speech recognition", e)
-            _speechState.value = SpeechState.ERROR
-            _errorMessage.value = "Failed to start speech recognition"
-            isListening = false
+            if (retryCount < MAX_RETRIES) {
+                retryCount++
+                Logger.speech("Retrying start after audio focus delay ($retryCount/$MAX_RETRIES)")
+                _speechState.value = SpeechState.RETRYING
+                scope.launch {
+                    delay(500)
+                    startListeningInternal()
+                }
+            } else {
+                _speechState.value = SpeechState.ERROR
+                _errorMessage.value = "Failed to start speech recognition"
+                isListening = false
+                retryCount = 0
+            }
         }
     }
 

@@ -144,18 +144,187 @@
     </LinearLayout>
 
     <TextView
+        android:id="@+id/speedDialLabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginTop="24dp"
+        android:gravity="center"
+        android:text="Speed Dial"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/confirmationGroup" />
+
+    <LinearLayout
+        android:id="@+id/speedDialRow1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/speedDialLabel">
+
+        <Button
+            android:id="@+id/slot1"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_margin="4dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:lines="1"
+            android:text="1: --"
+            android:textSize="11sp"
+            android:tag="1" />
+
+        <Button
+            android:id="@+id/slot2"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_margin="4dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:lines="1"
+            android:text="2: --"
+            android:textSize="11sp"
+            android:tag="2" />
+
+        <Button
+            android:id="@+id/slot3"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_margin="4dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:lines="1"
+            android:text="3: --"
+            android:textSize="11sp"
+            android:tag="3" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/speedDialRow2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/speedDialRow1">
+
+        <Button
+            android:id="@+id/slot4"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_margin="4dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:lines="1"
+            android:text="4: --"
+            android:textSize="11sp"
+            android:tag="4" />
+
+        <Button
+            android:id="@+id/slot5"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_margin="4dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:lines="1"
+            android:text="5: --"
+            android:textSize="11sp"
+            android:tag="5" />
+
+        <Button
+            android:id="@+id/slot6"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_margin="4dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:lines="1"
+            android:text="6: --"
+            android:textSize="11sp"
+            android:tag="6" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/speedDialRow3"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/speedDialRow2">
+
+        <Button
+            android:id="@+id/slot7"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_margin="4dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:lines="1"
+            android:text="7: --"
+            android:textSize="11sp"
+            android:tag="7" />
+
+        <Button
+            android:id="@+id/slot8"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_margin="4dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:lines="1"
+            android:text="8: --"
+            android:textSize="11sp"
+            android:tag="8" />
+
+        <Button
+            android:id="@+id/slot9"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_margin="4dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:lines="1"
+            android:text="9: --"
+            android:textSize="11sp"
+            android:tag="9" />
+    </LinearLayout>
+
+    <TextView
         android:id="@+id/hintText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
-        android:layout_marginBottom="32dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="24dp"
         android:gravity="center"
-        android:text="Say &quot;Call Amma&quot; or &quot;Dial Thaththa&quot;"
+        android:text="Say &quot;Call Amma&quot;, &quot;Number One&quot;, or &quot;Time&quot;"
         android:textColor="?attr/colorOnSurfaceVariant"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/speedDialRow3" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

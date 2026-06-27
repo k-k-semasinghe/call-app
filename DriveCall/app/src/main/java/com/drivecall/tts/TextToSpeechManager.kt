@@ -14,6 +14,7 @@ class TextToSpeechManager(private val context: Context) {
     private var tts: TextToSpeech? = null
     private var isInitialized = false
     private var pendingUtteranceCallback: (() -> Unit)? = null
+    private var pendingSpeakRequest: Pair<String, (() -> Unit)?>? = null
 
     private val _isSpeaking = MutableStateFlow(false)
     val isSpeaking: StateFlow<Boolean> = _isSpeaking.asStateFlow()
@@ -31,6 +32,7 @@ class TextToSpeechManager(private val context: Context) {
                 } else {
                     isInitialized = true
                     Logger.speech("TTS initialized successfully")
+                    flushPendingSpeak()
                 }
             } else {
                 Logger.error("TTS", "Failed to initialize TTS")
@@ -44,10 +46,9 @@ class TextToSpeechManager(private val context: Context) {
 
             override fun onDone(utteranceId: String?) {
                 _isSpeaking.value = false
-                pendingUtteranceCallback?.let {
-                    it()
-                    pendingUtteranceCallback = null
-                }
+                val cb = pendingUtteranceCallback
+                pendingUtteranceCallback = null
+                cb?.invoke()
             }
 
             override fun onError(utteranceId: String?) {
@@ -57,10 +58,18 @@ class TextToSpeechManager(private val context: Context) {
         })
     }
 
+    private fun flushPendingSpeak() {
+        val pending = pendingSpeakRequest
+        if (pending != null) {
+            pendingSpeakRequest = null
+            speak(pending.first, pending.second)
+        }
+    }
+
     fun speak(text: String, onDone: (() -> Unit)? = null) {
         if (!isInitialized) {
-            Logger.error("TTS", "TTS not initialized")
-            onDone?.invoke()
+            Logger.speech("TTS not initialized, queuing: '$text'")
+            pendingSpeakRequest = Pair(text, onDone)
             return
         }
 
